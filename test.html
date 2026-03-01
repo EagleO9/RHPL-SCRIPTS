@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { height: 100vh; background: #2c3e50; color: white; padding-top: 20px; position: fixed; width: 250px; }
+        .main-content { margin-left: 260px; padding: 20px; }
+        .card-stat { border: none; border-radius: 10px; transition: transform 0.3s; }
+        .card-stat:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .status-badge { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h4 class="text-center mb-4"><i class="fas fa-robot"></i> Romero Automation</h4>
+        <nav class="nav flex-column px-3">
+            <a class="nav-link text-white active" href="#"><i class="fas fa-home me-2"></i> Dashboard</a>
+            <a class="nav-link text-white" href="#"><i class="fas fa-file-excel me-2"></i> Daily Sheets</a>
+            <a class="nav-link text-white" href="#"><i class="fas fa-history me-2"></i> Backup Logs</a>
+            <hr>
+            <a class="nav-link text-white" href="#"><i class="fas fa-cog me-2"></i> Settings</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>IT Projects Dashboard</h2>
+            <button class="btn btn-primary" onclick="createNewSheet()">
+                <i class="fas fa-plus"></i> Create New Sheet
+            </button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card card-stat bg-white p-3">
+                    <h6 class="text-muted">Total Sheets Managed</h6>
+                    <h3>12</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-stat bg-white p-3 border-start border-success border-4">
+                    <h6 class="text-muted">Active Today</h6>
+                    <h3>10</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-stat bg-white p-3 border-start border-warning border-4">
+                    <h6 class="text-muted">Backups Pending</h6>
+                    <h3>2</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-none">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Recent Projects</h5>
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date Created</th>
+                            <th>Sheet Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sheetTableBody">
+                        <tr>
+                            <td>2026-03-01</td>
+                            <td>Automation_Project_Alpha</td>
+                            <td><span class="badge bg-success status-badge">Completed</span></td>
+                            <td><button class="btn btn-sm btn-outline-dark"><i class="fas fa-external-link-alt"></i> Open</button></td>
+                        </tr>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createNewSheet() {
+            // This would call your Apps Script function
+            alert("Integrating with Apps Script...");
+            google.script.run.withSuccessHandler(function(response) {
+                alert("Sheet Created!");
+            }).createAndTrackNewSheet();
+        }
+    </script>
+</body>
+</html>
