@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+
+    .container {
+      width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px 25px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 18px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a237e;
+    }
+
+    label { font-weight: 600; }
+
+    select, input {
+      width: 100%;
+      padding: 9px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fafafa;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th {
+      background: #1a237e;
+      color: white;
+      padding: 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    #addRow { background: #2e7d32; color: white; }
+    #submitBtn { background: #ff6f00; color: white; float: right; }
+
+    #loader {
+      display: none;
+      margin-top: 15px;
+      text-align: right;
+      font-size: 15px;
+      font-weight: 600;
+      color: #0d47a1;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h2>POST FINISHING FORM</h2>
+
+  <label>Date</label>
+  <input type="date" id="entryDate">
+
+  <label>Shift</label>
+  <select id="shift">
+    <option value="">👉 Please select shift</option>
+    <option value="Day">Day</option>
+    <option value="Night">Night</option>
+  </select>
+
+  <!-- ✅ WASTAGE SHIFT KE BAAD (UPAR) -->
+  <label>Wastage</label>
+  <input type="number" id="wastage" placeholder="Enter total wastage">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Rolls</th>
+        <th>Weight</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr>
+        <td><input type="text" class="item"></td>
+        <td><input type="number" class="rolls"></td>
+        <td><input type="number" class="weight"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="btn" id="addRow">+ Add Row</button>
+  <button class="btn" id="submitBtn" onclick="submitForm()">Submit</button>
+
+  <div id="loader">⏳ Saving... Please wait</div>
+</div>
+
+<script>
+let isSubmitted = false;
+
+// ADD ROW
+document.getElementById("addRow").onclick = () => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input type="text" class="item"></td>
+    <td><input type="number" class="rolls"></td>
+    <td><input type="number" class="weight"></td>
+  `;
+  document.getElementById("tableBody").appendChild(tr);
+};
+
+function submitForm() {
+  if (isSubmitted) return;
+
+  const date = entryDate.value;
+  const shift = document.getElementById("shift").value;
+  const wastage = document.getElementById("wastage").value.trim();
+
+  if (!date) return alert("⚠️ Date required");
+  if (!shift) return alert("⚠️ Shift required");
+  if (!wastage) return alert("⚠️ Wastage required");
+
+  let items = [];
+  let hasValidRow = false;
+  let errors = [];
+
+  document.querySelectorAll("#tableBody tr").forEach((r, i) => {
+    const item = r.querySelector(".item").value.trim();
+    const rolls = r.querySelector(".rolls").value.trim();
+    const weight = r.querySelector(".weight").value.trim();
+    const rowNo = i + 1;
+
+    items.push({ item, rolls, weight, wastage });
+
+    if (!item && !rolls && !weight) return;
+
+    if (!item || !rolls || !weight) {
+      if (!item) errors.push(`Row ${rowNo}: Item required`);
+      if (!rolls) errors.push(`Row ${rowNo}: Rolls required`);
+      if (!weight) errors.push(`Row ${rowNo}: Weight required`);
+      return;
+    }
+
+    hasValidRow = true;
+  });
+
+  if (errors.length) return alert("❌ Fix Errors:\n\n" + errors.join("\n"));
+  if (!hasValidRow) return alert("⚠️ At least ONE complete row required");
+
+  isSubmitted = true;
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = "0.5";
+  loader.style.display = "block";
+
+  google.script.run
+    .withSuccessHandler(msg => {
+      alert("✅ " + msg);
+      location.reload();
+    })
+    .withFailureHandler(err => {
+      alert("❌ " + err.message);
+      isSubmitted = false;
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = "1";
+      loader.style.display = "none";
+    })
+    .submitPreFinishing({ date, shift, wastage, items });
+}
+</script>
+
+</body>
+</html>
