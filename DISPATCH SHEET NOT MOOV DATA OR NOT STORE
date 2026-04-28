@@ -1,1030 +1,192 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <base target="_top">
-  <meta charset="utf-8"/>
-  <title>Packing Entry Form - Pro</title>
-  <style>
-    :root {
-      --primary: #0d6efd;
-      --danger: #dc3545;
-      --success: #198754;
-      --warning: #ffc107;
-      --info: #0dcaf0;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #334155;
-    }
-
-    *{box-sizing:border-box;}
-    body{
-      font-family:'Inter', 'Segoe UI', sans-serif;
-      background: var(--bg);
-      margin:0; padding:20px;
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    .container{
-      max-width: 1300px;
-      margin: auto;
-      background: var(--card-bg);
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-
-    h2{
-      text-align: center;
-      color: var(--primary);
-      margin-bottom: 30px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .search-section {
-      background: #e0f2fe;
-      border: 2px solid #bae6fd;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .search-section label { margin-bottom: 0; color: #0369a1; font-weight:bold; }
-    .search-section select { border-color: #7dd3fc; background: #fff; max-width: 300px; }
-
-    label{
-      font-weight: 600;
-      margin-bottom: 6px;
-      display: block;
-      font-size: 0.9rem;
-      color: #64748b;
-    }
-
-    input, select{
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      background-color: #fcfcfc;
-      transition: all 0.2s ease;
-      font-size: 1rem;
-    }
-
-    input:focus, select:focus{
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-    }
-
-    input[readonly], select[disabled] {
-      background-color: #f1f5f9 !important;
-      color: #475569 !important;
-      cursor: not-allowed;
-      border-color: #cbd5e1 !important;
-    }
-
-    input.error-input {
-      border: 2px solid var(--danger) !important;
-      background-color: #fff5f5;
-    }
-    
-    input.info-input {
-      background-color: #e2e8f0;
-      color: #475569;
-      font-weight: bold;
-      border-color: #cbd5e1;
-      cursor: not-allowed;
-    }
-
-    .pending-box {
-      background-color: #fef9c3 !important;
-      color: #854d0e !important;
-      border-color: #fde047 !important;
-    }
-
-    .row{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .item-header-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-
-    .entry{
-      background: #ffffff;
-      border: 2px solid #f1f5f9;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      position: relative;
-      transition: border-color 0.2s;
-    }
-
-    .entry:hover {
-      border-color: #e2e8f0;
-    }
-
-    .remove-entry{
-      position: absolute;
-      right: 15px; top: 15px;
-      border: 1px solid #fee2e2;
-      background: #fef2f2;
-      border-radius: 6px;
-      padding: 6px 12px;
-      cursor: pointer;
-      color: var(--danger);
-      font-size: 0.8rem;
-      font-weight: bold;
-      z-index: 10;
-    }
-
-    .remove-entry:hover {
-      background: var(--danger);
-      color: white;
-    }
-
-    .bora-btns button{
-      padding: 10px 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-right: 10px;
-      font-weight: 600;
-      transition: opacity 0.2s;
-    }
-
-    .bora-btns button:active { opacity: 0.8; }
-
-    .btn-primary{ background: var(--primary); color: white; }
-    .btn-danger{ background: var(--danger); color: white; }
-    .btn-success{ background: var(--success); color: white; }
-    .btn-warning{ background: var(--warning); color: #000; }
-    .btn-info { background: var(--info); color: white; }
-
-    .roll-fields{
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-      padding: 15px;
-      background: #f8fafc;
-      border-radius: 8px;
-    }
-
-    .bora-item{
-      display: flex;
-      align-items: center;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
-
-    .bora-sn{
-      font-weight: bold;
-      margin-right: 8px;
-      color: var(--primary);
-      min-width: 20px;
-      font-size: 0.85rem;
-    }
-
-    .total-line{
-      margin-top: 15px;
-      font-weight: 700;
-      color: var(--primary);
-      background: #eff6ff;
-      padding: 12px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 20px;
-    }
-
-    .grand-summary{
-      background: #1e293b;
-      color: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      margin-top: 30px;
-      display: flex;
-      justify-content: space-around;
-      font-size: 1.2rem;
-      font-weight: 800;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    /* --- LOADING OVERLAY CSS --- */
-    #loadingOverlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      z-index: 99999;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(3px);
-    }
-
-    /* Extra full-page click blocker — sits above everything while submitting */
-    #clickBlocker {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 99998;
-      cursor: not-allowed;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    /* --- END OVERLAY CSS --- */
-
-    #toast{
-      visibility: hidden;
-      min-width: 300px;
-      background: #1e293b;
-      color: #fff;
-      text-align: center;
-      padding: 16px;
-      border-radius: 12px;
-      position: fixed;
-      bottom: 30px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 10000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    #toast.show{ visibility: visible; animation: slideUp 0.4s, fadeOut 0.4s 2.6s; }
-
-    #alertModal {
-      display: none;
-      position: fixed;
-      z-index: 20000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-    }
-    .modal-content {
-      background: white;
-      width: 90%; max-width: 400px;
-      margin: 15% auto;
-      padding: 25px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    }
-    .modal-header { color: var(--danger); font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
-    .modal-body { margin-bottom: 25px; color: #475569; font-weight: 500; font-size: 1.1rem; }
-    .modal-footer button { width: 100%; padding: 12px; font-weight: bold; border-radius: 8px; }
-
-    @keyframes slideUp { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-    hr { border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0; }
-
-    @media (max-width: 768px) {
-      .item-header-row { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-
-<body>
-  <!-- FULL PAGE CLICK BLOCKER (shown during submission) -->
-  <div id="clickBlocker"></div>
-
-  <!-- LOADING OVERLAY DIV -->
-  <div id="loadingOverlay">
-    <div class="spinner"></div>
-    <p style="margin-top:20px; font-weight:800; color:var(--primary); font-size:1.2rem;">GENERATING PDF... PLEASE WAIT</p>
-    <p style="color:#64748b;">Do not refresh or close this page.</p>
-  </div>
-
-  <div class="container">
-    <h2>📦 Order Dispatch Entry </h2>
-
-    <div class="search-section">
-      <div style="flex-grow:1;">
-        <label>🔍 Select Order (Dispatch ID)</label>
-        <select id="loadOrderSelect" onchange="fetchOrderData(this.value)">
-          <option value="">— Loading Orders... —</option>
-        </select>
-      </div>
-      <div>
-        <label>&nbsp;</label>
-        <button class="btn-primary" onclick="initForm()" style="padding:10px 20px;">Reset Form</button>
-      </div>
-    </div>
-
-    <div class="row">
-      <div><label>Date</label><input type="date" id="date"></div>
-      <div><label>Customer (Bill To)</label><input type="text" id="mainCustomer" placeholder="Enter Party Name"></div>
-      <div><label>Ship To </label><input type="text" id="shipTo" placeholder="Enter Receiver Name "></div>
-    </div>
-
-    <div class="row">
-      <div><label>Driver Name</label><input type="text" id="driverName" placeholder="Name"></div>
-      <div><label>Vehicle Number</label><input type="text" id="vehicleNumber" placeholder="XX 00 XX 0000"></div>
-      <div><label>Driver Mobile</label><input type="tel" id="driverNumber" placeholder="10 Digit Number"></div>
-    </div>
-
-    <div class="row">
-      <div><label>Loader Name</label><input type="text" id="loaderName" placeholder="Loader's Name"></div>
-      <div><label>PDF Time</label><input type="text" id="pdfGenTime" readonly style="background:#f1f5f9;"></div>
-    </div>
-
-    <hr>
-
-    <div id="formContainer"></div>
-
-    <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
-      <button class="btn-primary" id="addItemBtn" onclick="addEntry()" style="padding:12px 20px;">+ Add New Item</button>
-      
-      <div class="total-line" style="margin-top:0;">
-        <span>Grand Weight: <span id="grandWeight">0.00</span> KG</span>
-        <span>Total Units: <span id="grandBora">0</span></span>
-      </div>
-    </div>
-
-    <div class="grand-summary" id="bottomGrandSummary" style="display:none;">
-      <span>TOTAL WEIGHT: <span id="summaryWeight">0.00</span> KG</span>
-      <span>TOTAL BORAS/BALES: <span id="summaryBora">0</span></span>
-    </div>
-
-    <div style="margin-top:40px; text-align:right;">
-      <button class="btn-success" id="submitBtn" style="padding:16px 40px; font-size:1.1rem; border-radius:12px; box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3); touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-        Submit &amp; Generate PDF
-      </button>
-    </div>
-
-    <div class="row" style="margin-top:50px; padding-top: 30px; border-top: 1px dashed #ccc;">
-      <div>
-        <label>Reprint Old Dispatch (From Inward)</label>
-        <select id="dispatchSelect">
-          <option value="">— Select Old Dispatch ID —</option>
-        </select>
-      </div>
-      <div style="display:flex; align-items:flex-end;">
-        <button class="btn-warning" onclick="createSelectedPDF()" style="width:100%; height:45px; border-radius:8px; font-weight:bold;">Download Old PDF</button>
-      </div>
-    </div>
-
-    <div id="toast"></div>
-  </div>
-
-  <div id="alertModal">
-    <div class="modal-content">
-      <div class="modal-header">System Alert</div>
-      <div class="modal-body" id="alertModalBody"></div>
-      <div class="modal-footer">
-        <button class="btn-danger" onclick="closeAlertModal()">OK</button>
-      </div>
-    </div>
-  </div>
-
-  <datalist id="itemList"></datalist>
-
-<script>
-let itemListArray = []; 
-
-// ============================================================
-// DOUBLE ENTRY PROTECTION — 4-Layer Guard System
-// Layer 1: __submitLock  — in-memory JS flag
-// Layer 2: submitBtn disabled + pointer-events none
-// Layer 3: data-submitting attribute on document.body
-// Layer 4: #clickBlocker full-page transparent overlay
-// ============================================================
-let __submitLock = false;
-let __lastSubmitTime = 0;          // for debounce
-const SUBMIT_DEBOUNCE_MS = 3000;   // minimum gap between submit attempts
-
-let formStartTime = Date.now();
-
-function getISTTimestamp(){
-  return new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata"});
+/**
+ * Creates a custom menu in Google Sheets on open.
+ */
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('Dispatch Tools')
+    .addItem('Process Dispatches', 'processDispatches')
+    .addItem('Process Cancellations', 'processDispatches')
+    .addToUi();
 }
-function getISTTimeOnly(){
-  return new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata", hour12:true, hour:'2-digit', minute:'2-digit'});
+
+/**
+ * Web App entry point for the form.
+ */
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('Dispatch Form')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
-document.getElementById("pdfGenTime").value = getISTTimeOnly();
 
-// ============================================================
-// LOCK / UNLOCK HELPERS
-// ============================================================
-function _lockSubmission() {
-  __submitLock = true;
-  __lastSubmitTime = Date.now();
+/**
+ * Generates a unique Dispatch ID.
+ * Format: RHPL-DIS-yyMMddHHmmssSSS
+ */
+function generateUltraUniqueDispatchID() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000); 
 
-  // Layer 2: disable button visually + functionally
-  const sBtn = document.getElementById("submitBtn");
-  sBtn.disabled = true;
-  sBtn.setAttribute("disabled", "disabled");
-  sBtn.style.opacity = "0.5";
-  sBtn.style.pointerEvents = "none";
-  sBtn.style.cursor = "not-allowed";
-  sBtn.textContent = "Processing...";
+  try {
+    const now = new Date();
+    const ts = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyMMddHHmmssSSS");
+    return "RHPL-DIS-" + ts;
+  } finally {
+    lock.releaseLock();
+  }
+}
 
-  // Layer 3: body attribute guard
-  document.body.setAttribute("data-submitting", "true");
+/**
+ * Optimized Form Submission logic.
+ * Inserts data with a 2-row gap after the last entry.
+ */
+function submitDispatch(form) {
+  if (!form || !form.items || form.items.length === 0)
+    throw new Error('No items were submitted.');
 
-  // Layer 4: full-page click blocker
-  document.getElementById("clickBlocker").style.display = "block";
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Dispatch responses');
 
-  // Show loading overlay
-  document.getElementById("loadingOverlay").style.display = "flex";
+  if (!sheet) {
+    sheet = ss.insertSheet('Dispatch responses');
+    sheet.appendRow([
+      'Dispatch ID','Date Time','Party Details','Ship To',
+      'Item Name','Item Description','Item Quantity','Unit','Remark'
+    ]);
+  }
 
-  // Warn user if they try to leave
-  window.onbeforeunload = function() {
-    return "PDF is being generated. Are you sure you want to leave?";
+  const finalDateTime = form.dateTime ? form.dateTime : new Date();
+  const dispatchID = generateUltraUniqueDispatchID();
+
+  const rows = form.items.map(it => {
+    if (!form.shipTo || !it.name || !it.quantity || !it.unit)
+      throw new Error('Required fields (Name, Qty, Unit) are missing.');
+
+    return [
+      dispatchID,
+      finalDateTime,
+      form.partyDetails || '',
+      form.shipTo,
+      it.name,
+      it.description || '',
+      it.quantity,
+      it.unit,
+      it.remark || ''
+    ];
+  });
+
+  const maxRows = sheet.getMaxRows();
+  let lastContentRow = sheet.getRange(maxRows, 1).getNextDataCell(SpreadsheetApp.Direction.UP).getRow();
+
+  let writeStart = (lastContentRow <= 1) ? 2 : lastContentRow + 3; 
+
+  sheet.getRange(writeStart, 1, rows.length, 9).setValues(rows);
+  
+  return {
+    status: 'success',
+    dispatchID: dispatchID
   };
 }
 
-function _unlockSubmission() {
-  __submitLock = false;
+/**
+ * Processes dispatch responses.
+ * Moves rows to "COMPLETE DISPATCH" or "CANCELLED ORDERS" and deletes them from source.
+ */
+function processDispatches() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const srcName = 'Dispatch responses';
+  const destName = 'COMPLETE DISPATCH';
+  const cancelSheetName = 'CANCELLED ORDERS'; 
 
-  // Layer 2: re-enable button
-  const sBtn = document.getElementById("submitBtn");
-  sBtn.disabled = false;
-  sBtn.removeAttribute("disabled");
-  sBtn.style.opacity = "1";
-  sBtn.style.pointerEvents = "auto";
-  sBtn.style.cursor = "pointer";
-  sBtn.textContent = "Submit & Generate PDF";
-
-  // Layer 3: remove body attribute
-  document.body.removeAttribute("data-submitting");
-
-  // Layer 4: hide click blocker
-  document.getElementById("clickBlocker").style.display = "none";
-
-  // Hide loading overlay
-  document.getElementById("loadingOverlay").style.display = "none";
-
-  // Remove beforeunload warning
-  window.onbeforeunload = null;
-}
-
-// ============================================================
-// INIT FORM
-// ============================================================
-function initForm() {
-  // If submission is in progress, don't allow reset
-  if (__submitLock) {
-    showToast("Submission in progress. Please wait...", true);
+  const src = ss.getSheetByName(srcName);
+  if (!src) {
+    SpreadsheetApp.getUi().alert('Source sheet not found.');
     return;
-  }
-
-  document.getElementById("formContainer").innerHTML = "";
-  document.getElementById("mainCustomer").value = "";
-  document.getElementById("shipTo").value = "";
-  document.getElementById("driverName").value = "";
-  document.getElementById("vehicleNumber").value = "";
-  document.getElementById("driverNumber").value = "";
-  document.getElementById("loaderName").value = "";
-  document.getElementById("date").valueAsDate = new Date();
-  document.getElementById("loadOrderSelect").value = "";
-  
-  document.getElementById("date").readOnly = false;
-  document.getElementById("mainCustomer").readOnly = false;
-  document.getElementById("shipTo").readOnly = false;
-
-  document.getElementById("addItemBtn").style.display = "block";
-
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(function(items){
-      itemListArray = items;
-      updateDatalist(items);
-      addEntry(); 
-    }).getItemList();
-
-    google.script.run.withSuccessHandler(function(list){
-      const sel = document.getElementById("loadOrderSelect");
-      sel.innerHTML = '<option value="">— Select Order / Dispatch ID —</option>';
-      list.forEach(v => {
-        let opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = v;
-        sel.appendChild(opt);
-      });
-    }).getOrderList();
-
-    google.script.run.withSuccessHandler(function(list){
-      const sel = document.getElementById("dispatchSelect");
-      sel.innerHTML = '<option value="">— Select Old Dispatch ID —</option>';
-      list.forEach(v => {
-        let opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = v;
-        sel.appendChild(opt);
-      });
-    }).getChallanList(200);
-
-  } else {
-    itemListArray = ["Cotton Roll", "Polyester Blend"];
-    updateDatalist(itemListArray);
-    addEntry();
-  }
-}
-
-// ============================================================
-// FETCH ORDER DATA
-// ============================================================
-function fetchOrderData(id) {
-  if(!id) return;
-  showToast("Checking Order Status...");
-  
-  google.script.run.withSuccessHandler(function(data){
-    if(!data || !data.found) {
-       showToast("Order ID not found!", true);
-       return;
-    }
-    
-    if(data.alreadySubmitted) {
-       showAlert("✅ ALREADY COMPLETED! \n\n This Dispatch ID ("+id+") has been completed and will be removed shortly. No pending items found.");
-       initForm(); 
-       return;
-    }
-
-    document.getElementById("addItemBtn").style.display = "none";
-
-    document.getElementById("date").value = data.date;
-    document.getElementById("date").readOnly = false; 
-    
-    document.getElementById("mainCustomer").value = data.customerName;
-    document.getElementById("mainCustomer").readOnly = true;
-    
-    document.getElementById("shipTo").value = data.shipTo;
-    document.getElementById("shipTo").readOnly = true;
-    
-    document.getElementById("formContainer").innerHTML = "";
-
-    if(data.items.length > 0) {
-      data.items.forEach(item => {
-        const initialData = {
-          name: item.itemName,
-          desc: item.itemDescription || item.description || "",
-          oQty: item.totalQty || item.qty || "-",
-          pQty: item.pendingQty || item.qty || "-",
-          type: (String(item.type || "").toLowerCase().includes("bale")) ? "Bale" : "Bora"
-        };
-        addEntry(null, false, initialData);
-      });
-      showToast("Order loaded with Descriptions!");
-    } else {
-      showToast("No pending items found.");
-      addEntry();
-    }
-  }).getOrderDetails(id);
-}
-
-function updateDatalist(items) {
-  const dl = document.getElementById("itemList");
-  dl.innerHTML = items.map(v => `<option value="${v}">`).join("");
-}
-
-function showAlert(message) {
-  document.getElementById("alertModalBody").innerHTML = message.replace(/\n/g, '<br>');
-  document.getElementById("alertModal").style.display = "block";
-}
-function closeAlertModal() {
-  document.getElementById("alertModal").style.display = "none";
-}
-
-function checkItemValidity(input) {
-  const val = input.value;
-  if (!val || val.trim() === "") {
-      input.classList.add("error-input");
-      return;
-  }
-  input.classList.remove("error-input");
-}
-
-function addEntry(btn, returnDOM = false, data = null){
-  const entry = document.createElement("div");
-  entry.className = "entry";
-  
-  const iName = data ? data.name : "";
-  const iDesc = data ? data.desc : "";
-  const iOQty = data ? data.oQty : "-";
-  const iPQty = data ? data.pQty : "-";
-  const iType = data ? data.type : "Bora";
-
-  const isLockedAttr = data ? "readonly" : "";
-  const isLockedSelect = data ? "disabled" : "";
-
-  entry.innerHTML = `
-    <button class="remove-entry" onclick="removeEntry(this)">✖ Remove</button>
-    
-    <div class="item-header-row">
-      <div>
-        <label>Item Name</label>
-        <input type="text" name="itemName" list="itemList" value="${iName}" placeholder="Type to search..." 
-               onblur="checkItemValidity(this)" required autocomplete="off" ${isLockedAttr}>
-      </div>
-      <div>
-        <label>Description</label>
-        <input type="text" name="itemDescription" value="${iDesc ? iDesc.toString().replace(/"/g, '&quot;') : ''}" placeholder="Size / Color / Details" ${isLockedAttr}>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Order Qty</label>
-        <input type="text" name="orderQty" value="${iOQty}" class="info-input" readonly placeholder="-">
-      </div>
-      <div>
-        <label>Remaining</label>
-        <input type="text" name="pendingQty" value="${iPQty}" class="info-input pending-box" readonly placeholder="-">
-      </div>
-      <div>
-        <label>Contractor <span style="color:var(--danger);">*</span></label>
-        <input type="text" name="contractorName" placeholder="Contractor Name" required>
-      </div>
-      <div><label>Packer</label><input type="text" name="packerName" placeholder="Packer Name"></div>
-      <div>
-          <label>Type</label>
-          <select name="packingType" ${isLockedSelect}>
-            <option value="Bora" ${iType==='Bora'?'selected':''}>Bora</option>
-            <option value="Bale" ${iType==='Bale'?'selected':''}>Bale</option>
-          </select>
-          ${data ? `<input type="hidden" name="packingType_hidden" value="${iType}">` : ''}
-      </div>
-    </div>
-
-    <div class="roll-fields"></div>
-    <div class="bora-btns" style="margin-top:15px;">
-      <button class="btn-primary" onclick="addBora(this)">+ Add Wt</button>
-      <button class="btn-danger" onclick="removeBora(this)">- Remove Last</button>
-      <button class="btn-info" onclick="duplicateEntry(this)" title="Split remaining stock into new block">📋 Split Entry</button>
-    </div>
-    <div class="total-line">
-      <span>Item Total: <span class="total-weight">0.00</span> KG</span>
-      <span>Count: <span class="bora-count">0</span></span>
-    </div>
-  `;
-
-  if(!returnDOM) {
-    document.getElementById("formContainer").appendChild(entry);
-    addBora(entry.querySelector(".btn-primary"));
-  }
-  
-  return entry;
-}
-
-function duplicateEntry(btn) {
-  const currentEntry = btn.closest(".entry");
-  const pQtyInput = currentEntry.querySelector("input[name='pendingQty']");
-  
-  const currentTotal = parseInt(pQtyInput.value) || 0;
-  const filledUnits = currentEntry.querySelectorAll("input[data-bora]").length;
-  
-  if (pQtyInput.value !== "-" && currentTotal <= filledUnits) {
-    showAlert("❌ LIMIT REACHED!\n\nFilled all " + currentTotal + " units. Nothing left to split.");
-    return;
-  }
-
-  let newBlockPending = pQtyInput.value === "-" ? "-" : (currentTotal - filledUnits);
-  
-  if (pQtyInput.value !== "-") {
-    pQtyInput.value = filledUnits;
-    showToast("Current block locked to " + filledUnits);
-  }
-
-  const data = {
-    name: currentEntry.querySelector("input[name='itemName']").value,
-    desc: currentEntry.querySelector("input[name='itemDescription']").value,
-    oQty: currentEntry.querySelector("input[name='orderQty']").value,
-    pQty: newBlockPending,
-    type: currentEntry.querySelector("select[name='packingType']").value || (currentEntry.querySelector("input[name='packingType_hidden']") ? currentEntry.querySelector("input[name='packingType_hidden']").value : "Bora")
   };
+
+  let dest = ss.getSheetByName(destName);
+  if (!dest) dest = ss.insertSheet(destName);
+
+  let cancelSheet = ss.getSheetByName(cancelSheetName);
+  if (!cancelSheet) cancelSheet = ss.insertSheet(cancelSheetName);
+
+  const lastRow = src.getLastRow();
+  if (lastRow < 2) {
+    SpreadsheetApp.getUi().alert('No data to process.');
+    return;
+  }
+
+  const srcData = src.getRange(1, 1, lastRow, 13).getValues();
+  const header = srcData[0].slice(0, 12); 
+
+  if (dest.getLastRow() === 0) dest.getRange(1, 1, 1, 12).setValues([header]);
+  if (cancelSheet.getLastRow() === 0) cancelSheet.getRange(1, 1, 1, 12).setValues([header]);
+
+  const destLastRow = dest.getLastRow();
+  const destVals = destLastRow > 1 ? dest.getRange(2, 1, destLastRow - 1, 12).getValues() : [];
   
-  const newEntry = addEntry(null, true, data);
-  currentEntry.insertAdjacentElement('afterend', newEntry);
-  addBora(newEntry.querySelector(".btn-primary"));
-  
-  showToast("Balance " + newBlockPending + " units moved to next block.");
-}
+  const existingKeys = new Set(destVals.map(r => `${r[0]}|${r[4]}|${r[6]}`));
 
-function removeEntry(btn){
-  const entryToRemove = btn.closest(".entry");
-  const itemName = entryToRemove.querySelector("input[name='itemName']").value;
-  const itemDesc = entryToRemove.querySelector("input[name='itemDescription']").value;
-  const pQtyRemoved = parseInt(entryToRemove.querySelector("input[name='pendingQty']").value) || 0;
+  const toAppend = [];      
+  const toCancel = [];      
+  const toDelete = [];      
 
-  if(document.querySelectorAll(".entry").length > 1){
-    const allEntries = [...document.querySelectorAll(".entry")];
-    const currentIndex = allEntries.indexOf(entryToRemove);
+  for (let i = 1; i < srcData.length; i++) {
+    const row = srcData[i];
+    const rowNum = i + 1;
+    
+    if (!row[0] || String(row[0]).trim() === "") continue; 
 
-    for (let i = currentIndex - 1; i >= 0; i--) {
-      const prevEntry = allEntries[i];
-      const prevName = prevEntry.querySelector("input[name='itemName']").value;
-      const prevDesc = prevEntry.querySelector("input[name='itemDescription']").value;
-      const prevPQtyInput = prevEntry.querySelector("input[name='pendingQty']");
+    const dispatchID = String(row[0]).trim();
+    const itemName = String(row[4]).trim();
+    const qty = String(row[6]).trim();
+    const billNumber = String(row[11] ?? '').trim();
+    const status = String(row[12] ?? '').trim().toUpperCase();
+    const cleanRow = row.slice(0, 12);
 
-      if (prevName === itemName && prevDesc === itemDesc && prevPQtyInput.value !== "-") {
-          const currentPrevVal = parseInt(prevPQtyInput.value) || 0;
-          prevPQtyInput.value = currentPrevVal + pQtyRemoved;
-          showToast("Stock (" + pQtyRemoved + ") returned to previous block.");
-          break;
+    const rowKey = `${dispatchID}|${itemName}|${qty}`;
+
+    // 1. Logic for ORDER CANCEL
+    if (status === 'ORDER CANCEL') {
+      toCancel.push(cleanRow);
+      toDelete.push(rowNum);
+      continue;
+    }
+
+    // 2. Logic for DISPATCH / EXTRA DISPATCH / PENDING
+    if (['DISPATCH', 'EXTRA DISPATCH', 'PENDING'].includes(status)) {
+      if (billNumber === '') continue; 
+
+      if (!existingKeys.has(rowKey)) {
+        toAppend.push(cleanRow);
+        existingKeys.add(rowKey);
+        if (status !== 'PENDING') toDelete.push(rowNum);
+      } else {
+        if (status !== 'PENDING') toDelete.push(rowNum);
       }
     }
-
-    entryToRemove.remove();
-    recalcGrand();
-  } else {
-    showToast("At least one item is required", true);
-  }
-}
-
-function addBora(btnOrEntry){
-  const entry = btnOrEntry.closest ? btnOrEntry.closest(".entry") : btnOrEntry;
-  const pQtyInput = entry.querySelector("input[name='pendingQty']");
-  const div = entry.querySelector(".roll-fields");
-  const currentCount = div.children.length;
-
-  if (pQtyInput && pQtyInput.value && pQtyInput.value !== "-") {
-      const max = parseInt(pQtyInput.value) || 0;
-      if (max > 0 && currentCount >= max) {
-          showToast(`Limit Reached! Block limit is ${max}`, true);
-          return;
-      }
   }
 
-  const count = currentCount + 1;
-  const w = document.createElement("div");
-  w.className = "bora-item";
-  w.innerHTML = `
-    <span class="bora-sn">${count}.</span>
-    <input type="number" data-bora step="0.01" placeholder="0.00" oninput="recalc(this)" onkeydown="handleEnter(event, this)">
-  `;
-  div.appendChild(w);
-  w.querySelector("input").focus();
-}
-
-function handleEnter(e, input) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const entry = input.closest(".entry");
-    const allInputs = [...entry.querySelectorAll("input[data-bora]")];
-    const currentIndex = allInputs.indexOf(input);
-    if (currentIndex < allInputs.length - 1) {
-      allInputs[currentIndex + 1].focus();
-    } else {
-      addBora(entry);
-    }
-  }
-}
-
-function removeBora(btn){
-  const entry = btn.closest(".entry");
-  const div = entry.querySelector(".roll-fields");
-  if(div.lastChild) div.lastChild.remove();
-  recalc(btn);
-}
-
-function recalc(el){
-  if(!el) return;
-  const entry = el.closest(".entry");
-  let total = 0, count = 0;
-  entry.querySelectorAll("input[data-bora]").forEach(i => {
-    const v = parseFloat(i.value) || 0;
-    if(v > 0){ total += v; count++; }
-  });
-  entry.querySelector(".total-weight").textContent = total.toFixed(2);
-  entry.querySelector(".bora-count").textContent = count;
-  recalcGrand();
-}
-
-function recalcGrand(){
-  let gWeight = 0, gBora = 0;
-  document.querySelectorAll(".entry").forEach(en => {
-    gWeight += parseFloat(en.querySelector(".total-weight").textContent) || 0;
-    gBora += parseInt(en.querySelector(".bora-count").textContent) || 0;
-  });
-  document.getElementById("grandWeight").textContent = gWeight.toFixed(2);
-  document.getElementById("grandBora").textContent = gBora;
-  const hasData = gBora > 0;
-  document.getElementById("bottomGrandSummary").style.display = hasData ? "flex" : "none";
-  document.getElementById("summaryWeight").textContent = gWeight.toFixed(2);
-  document.getElementById("summaryBora").textContent = gBora;
-}
-
-// ============================================================
-// SUBMIT FORM — 4-LAYER DOUBLE ENTRY PROTECTION
-// ============================================================
-function submitForm(){
-
-  // ── LAYER 1: in-memory lock check ──
-  if (__submitLock) {
-    showToast("⚠️ Already processing! Please wait.", true);
-    return;
-  }
-
-  // ── DEBOUNCE: prevent accidental rapid fire clicks ──
-  const now = Date.now();
-  if (now - __lastSubmitTime < SUBMIT_DEBOUNCE_MS) {
-    showToast("⚠️ Please wait before submitting again.", true);
-    return;
-  }
-
-  // ── LAYER 2 check: body attribute guard ──
-  if (document.body.getAttribute("data-submitting") === "true") {
-    showToast("⚠️ Submission already in progress!", true);
-    return;
-  }
-
-  // ── LAYER 3 check: button disabled guard ──
-  const sBtn = document.getElementById("submitBtn");
-  if (sBtn.disabled) {
-    showToast("⚠️ Already submitted! Do not click again.", true);
-    return;
-  }
-
-  // ── VALIDATION ──
-  const date = document.getElementById("date").value;
-  const customer = document.getElementById("mainCustomer").value.trim();
-  const ship = document.getElementById("shipTo").value.trim();
+  // Move data
+  if (toAppend.length > 0) dest.getRange(dest.getLastRow() + 1, 1, toAppend.length, 12).setValues(toAppend);
+  if (toCancel.length > 0) cancelSheet.getRange(cancelSheet.getLastRow() + 1, 1, toCancel.length, 12).setValues(toCancel);
   
-  if(!date || !customer || !ship) {
-    showToast("Fill Date, Customer and Ship-To", true);
-    return;
+  // Physical deletion
+  if (toDelete.length > 0) {
+    toDelete.sort((a, b) => b - a);
+    for (const r of toDelete) src.deleteRow(r);
   }
 
-  const entries = [];
-  let valid = true;
-  let missingContractor = false;
-
-  document.querySelectorAll(".entry").forEach(en => {
-    const itemInput = en.querySelector("input[name='itemName']");
-    const itemValue = itemInput.value;
-    const descriptionValue = en.querySelector("input[name='itemDescription']").value.trim();
-    
-    const orderQty = en.querySelector("input[name='orderQty']").value || "";
-    
-    const contractorInput = en.querySelector("input[name='contractorName']");
-    const contractor = contractorInput.value.trim();
-    
-    const packer = en.querySelector("input[name='packerName']").value.trim();
-    const typeSelect = en.querySelector("select[name='packingType']");
-    const typeHidden = en.querySelector("input[name='packingType_hidden']");
-    const packingType = typeHidden ? typeHidden.value : typeSelect.value;
-    const boras = [...en.querySelectorAll("input[data-bora]")].map(i => i.value).filter(v => v !== "");
-
-    if(!itemValue || itemValue.trim() === "") { 
-      valid = false;
-      en.style.borderColor = "red";
-      itemInput.classList.add("error-input");
-    } else {
-      itemInput.classList.remove("error-input");
-    }
-
-    if(!contractor || contractor === "") {
-      missingContractor = true;
-      contractorInput.classList.add("error-input");
-    } else {
-      contractorInput.classList.remove("error-input");
-    }
-
-    if(itemValue && itemValue.trim() !== "" && contractor && contractor !== "" && boras.length > 0){
-      en.style.borderColor = "#f1f5f9";
-      entries.push({
-        itemName: itemValue, 
-        itemDescription: descriptionValue, 
-        orderQty: orderQty,
-        contractorName: contractor, 
-        packerName: packer,
-        packingType: packingType, 
-        date: date, 
-        customerName: customer, 
-        shipTo: ship, 
-        boras: boras
-      });
-    }
-  });
-
-  if(!valid) { 
-    showAlert("Item Name cannot be empty."); 
-    return; 
-  }
-  if(missingContractor) { 
-    showAlert("Contractor Name is strictly required for all entries."); 
-    return; 
-  }
-  if(entries.length === 0) { 
-    showToast("Enter weights for at least one item", true); 
-    return; 
+  // Final Cleanup: remove excess blank rows
+  const currentMax = src.getMaxRows();
+  const currentLast = src.getLastRow();
+  if (currentMax > currentLast + 10) {
+    src.deleteRows(currentLast + 1, currentMax - currentLast);
   }
 
-  // ── ALL VALIDATIONS PASSED — NOW LOCK EVERYTHING ──
-  _lockSubmission();
-
-  const payload = {
-    entries: entries,
-    timestamp: getISTTimestamp(),
-    duration: Math.floor((Date.now() - formStartTime)/1000),
-    driverName: document.getElementById("driverName").value.trim(),
-    vehicleNumber: document.getElementById("vehicleNumber").value.trim(),
-    driverNumber: document.getElementById("driverNumber").value.trim(),
-    loaderName: document.getElementById("loaderName").value.trim(),
-    pdfGenTime: document.getElementById("pdfGenTime").value,
-    orderId: document.getElementById("loadOrderSelect").value || "" 
-  };
-
-  if (typeof google !== 'undefined') {
-    google.script.run
-      .withSuccessHandler(function(resp){
-        let a = document.createElement("a");
-        a.href = resp.dataUrl;
-        a.download = resp.filename;
-        a.click();
-        showToast("✅ Success! PDF Downloaded.");
-        // Page reload clears all state — safest way to reset after success
-        window.onbeforeunload = null;
-        setTimeout(() => location.reload(), 2000); 
-      })
-      .withFailureHandler(function(err){
-        showToast("❌ Error: " + err, true);
-        // On failure: unlock so user can retry
-        _unlockSubmission();
-      })
-      .submitFormAndCreatePDF(payload);
-  } else {
-    // Local testing mode
-    setTimeout(() => {
-      showToast("✅ Test Mode: Success! (No Google API detected)");
-      window.onbeforeunload = null;
-      _unlockSubmission();
-    }, 1500);
-  }
+  SpreadsheetApp.getUi().alert(
+    `✅ Processing Completed Successfully.\n\n` +
+    `➡️ Complete: ${toAppend.length}\n` +
+    `➡️ Cancelled: ${toCancel.length}\n` +
+    `🗑️ Deleted from source: ${toDelete.length}`
+  );
 }
-
-function createSelectedPDF(){
-  const dispatchId = document.getElementById("dispatchSelect").value;
-  if(!dispatchId) return showToast("Select a Dispatch ID", true);
-  showToast("Fetching PDF...");
-  if (typeof google !== 'undefined') {
-    google.script.run.withSuccessHandler(function(resp){
-      let a = document.createElement("a");
-      a.href = resp.dataUrl;
-      a.download = resp.filename;
-      a.click();
-    }).createChallanPDF(dispatchId);
-  }
-}
-
-function showToast(msg, isError){
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.style.borderLeft = isError ? "5px solid #ef4444" : "5px solid #22c55e";
-  t.className = "show";
-  setTimeout(() => t.className = "", 3000);
-}
-
-window.onload = function() {
-  initForm();
-
-  // ── IRON LOCK: Attach submit at event level (not onclick) ──
-  // touchstart fires before click on mobile — catch it first
-  // stopImmediatePropagation kills ALL duplicate events instantly
-  const sBtn = document.getElementById('submitBtn');
-  let __tapLock = false;
-
-  function _handleSubmitEvent(e) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-
-    if (__tapLock || __submitLock) return; // silent block
-
-    __tapLock = true;
-
-    requestAnimationFrame(function() {
-      submitForm();
-      setTimeout(function() { __tapLock = false; }, 5000);
-    });
-  }
-
-  sBtn.addEventListener('touchstart', _handleSubmitEvent, { passive: false, capture: true });
-  sBtn.addEventListener('click',      _handleSubmitEvent, { capture: true });
-};
-</script>
-</body>
-</html>
