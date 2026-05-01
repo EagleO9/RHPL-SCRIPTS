@@ -1,0 +1,199 @@
+/**
+ * Creates a custom menu in Google Sheets on open.
+ */
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('Dispatch Tools')
+    .addItem('Process Dispatches', 'processDispatches')
+    .addItem('Process Cancellations', 'processDispatches')
+    .addToUi();
+}
+
+/**
+ * Web App entry point for the form.
+ */
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('Dispatch Form')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/**
+ * Generates a unique Dispatch ID.
+ * Format: RHPL-DIS-yyMMddHHmmssSSS
+ */
+function generateUltraUniqueDispatchID() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000); 
+
+  try {
+    const now = new Date();
+    const ts = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyMMddHHmmssSSS");
+    return "RHPL-DIS-" + ts;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Optimized Form Submission logic.
+ * Inserts data with a 2-row gap after the last entry.
+ */
+function submitDispatch(form) {
+  if (!form || !form.items || form.items.length === 0)
+    throw new Error('No items were submitted.');
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Dispatch responses');
+
+  if (!sheet) {
+    sheet = ss.insertSheet('Dispatch responses');
+    sheet.appendRow([
+      'Dispatch ID','Date Time','Party Details','Ship To',
+      'Item Name','Item Description','Item Quantity','Unit','Remark'
+    ]);
+  }
+
+  const finalDateTime = form.dateTime ? form.dateTime : new Date();
+  const dispatchID = generateUltraUniqueDispatchID();
+
+  const rows = form.items.map(it => {
+    if (!form.shipTo || !it.name || !it.quantity || !it.unit)
+      throw new Error('Required fields (Name, Qty, Unit) are missing.');
+
+    return [
+      dispatchID,
+      finalDateTime,
+      form.partyDetails || '',
+      form.shipTo,
+      it.name,
+      it.description || '',
+      it.quantity,
+      it.unit,
+      it.remark || ''
+    ];
+  });
+
+  const maxRows = sheet.getMaxRows();
+  let lastContentRow = sheet.getRange(maxRows, 1).getNextDataCell(SpreadsheetApp.Direction.UP).getRow();
+
+  let writeStart = (lastContentRow <= 1) ? 2 : lastContentRow + 3; 
+
+  sheet.getRange(writeStart, 1, rows.length, 9).setValues(rows);
+  
+  return {
+    status: 'success',
+    dispatchID: dispatchID
+  };
+}
+
+/**
+ * Processes dispatch responses.
+ * Moves rows to "COMPLETE DISPATCH" or "CANCELLED ORDERS" and deletes them from source.
+ * IMPROVED: Expanded rowKey to include Date and Bill Number to prevent "Next Day" move issues.
+ */
+function processDispatches() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const srcName = 'Dispatch responses';
+  const destName = 'COMPLETE DISPATCH';
+  const cancelSheetName = 'CANCELLED ORDERS'; 
+
+  const src = ss.getSheetByName(srcName);
+  if (!src) {
+    SpreadsheetApp.getUi().alert('Source sheet not found.');
+    return;
+  };
+
+  let dest = ss.getSheetByName(destName);
+  if (!dest) dest = ss.insertSheet(destName);
+
+  let cancelSheet = ss.getSheetByName(cancelSheetName);
+  if (!cancelSheet) cancelSheet = ss.insertSheet(cancelSheetName);
+
+  const lastRow = src.getLastRow();
+  if (lastRow < 2) {
+    SpreadsheetApp.getUi().alert('No data to process.');
+    return;
+  }
+
+  const srcData = src.getRange(1, 1, lastRow, 13).getValues();
+  const header = srcData[0].slice(0, 12); 
+
+  if (dest.getLastRow() === 0) dest.getRange(1, 1, 1, 12).setValues([header]);
+  if (cancelSheet.getLastRow() === 0) cancelSheet.getRange(1, 1, 1, 12).setValues([header]);
+
+  const destLastRow = dest.getLastRow();
+  const destVals = destLastRow > 1 ? dest.getRange(2, 1, destLastRow - 1, 12).getValues() : [];
+  
+  // IMPROVED KEY: Added Date (r[1]) and Bill Number (r[11]) to ensure unique daily entries move correctly.
+  const existingKeys = new Set(destVals.map(r => 
+    `${String(r[0]).trim()}|${String(r[1]).trim()}|${String(r[4]).trim()}|${String(r[6]).trim()}|${String(r[11]).trim()}`
+  ));
+
+  const toAppend = [];      
+  const toCancel = [];      
+  const toDelete = [];      
+
+  for (let i = 1; i < srcData.length; i++) {
+    const row = srcData[i];
+    const rowNum = i + 1;
+    
+    if (!row[0] || String(row[0]).trim() === "") continue; 
+
+    const dispatchID = String(row[0]).trim();
+    const dateTime = String(row[1]).trim();
+    const itemName = String(row[4]).trim();
+    const qty = String(row[6]).trim();
+    const billNumber = String(row[11] ?? '').trim();
+    const status = String(row[12] ?? '').trim().toUpperCase();
+    const cleanRow = row.slice(0, 12);
+
+    // IMPROVED KEY: Matches the logic used for checking existing records.
+    const rowKey = `${dispatchID}|${dateTime}|${itemName}|${qty}|${billNumber}`;
+
+    // 1. Logic for ORDER CANCEL
+    if (status === 'ORDER CANCEL') {
+      toCancel.push(cleanRow);
+      toDelete.push(rowNum);
+      continue;
+    }
+
+    // 2. Logic for DISPATCH / EXTRA DISPATCH / PENDING
+    if (['DISPATCH', 'EXTRA DISPATCH', 'PENDING'].includes(status)) {
+      if (billNumber === '') continue; 
+
+      if (!existingKeys.has(rowKey)) {
+        toAppend.push(cleanRow);
+        existingKeys.add(rowKey);
+        if (status !== 'PENDING') toDelete.push(rowNum);
+      } else {
+        // If status is not pending and it already exists, we still delete from source to keep it clean
+        if (status !== 'PENDING') toDelete.push(rowNum);
+      }
+    }
+  }
+
+  // Move data
+  if (toAppend.length > 0) dest.getRange(dest.getLastRow() + 1, 1, toAppend.length, 12).setValues(toAppend);
+  if (toCancel.length > 0) cancelSheet.getRange(cancelSheet.getLastRow() + 1, 1, toCancel.length, 12).setValues(toCancel);
+  
+  // Physical deletion
+  if (toDelete.length > 0) {
+    toDelete.sort((a, b) => b - a);
+    for (const r of toDelete) src.deleteRow(r);
+  }
+
+  // Final Cleanup: remove excess blank rows
+  const currentMax = src.getMaxRows();
+  const currentLast = src.getLastRow();
+  if (currentMax > currentLast + 10) {
+    src.deleteRows(currentLast + 1, currentMax - currentLast);
+  }
+
+  SpreadsheetApp.getUi().alert(
+    `✅ Processing Completed Successfully.\n\n` +
+    `➡️ Complete: ${toAppend.length}\n` +
+    `➡️ Cancelled: ${toCancel.length}\n` +
+    `🗑️ Deleted from source: ${toDelete.length}`
+  );
+}
